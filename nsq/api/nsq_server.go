@@ -8,10 +8,10 @@ import (
 
 type PublisherServerI interface {
 	Publish(msg *message.Message) error
-	Stop()
+	StopPublisher()
 }
 
 type ConsumerServerI interface {
-	StartHandler(handler nsq.Handler)
-	StopHandler()
+	StartConcurrentHandlers(handler nsq.Handler)
+	StopConsumer()
 }

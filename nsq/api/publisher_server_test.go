@@ -18,7 +18,7 @@ func TestPublisherServer_Publish(t *testing.T) {
 	quit := false
 	go func() {
 		time.Sleep(20 * time.Minute)
-		np.Stop()
+		np.StopPublisher()
 		quit = true
 	}()
 

@@ -34,6 +34,6 @@ func (ps *PublisherServer) Publish(msg *message.Message) error {
 	return nil
 }
 
-func (ps *PublisherServer) Stop() {
+func (ps *PublisherServer) StopPublisher() {
 	ps.pi.Stop()
 }

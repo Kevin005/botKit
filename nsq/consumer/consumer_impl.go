@@ -24,6 +24,10 @@ func (c *ConsumerImpl) ConnectToNSQLookupd(lookupHosts []string) error {
 	return nil
 }
 
-func (c *ConsumerImpl) AddHandler(handler nsq.Handler) {
-	c.consumer.AddHandler(handler)
+func (c *ConsumerImpl) AddConcurrentHandlers(handler nsq.Handler, concurrency int) {
+	c.consumer.AddConcurrentHandlers(handler, concurrency)
+}
+
+func (c *ConsumerImpl) Stop() {
+	c.consumer.Stop()
 }

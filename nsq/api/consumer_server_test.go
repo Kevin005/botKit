@@ -11,17 +11,20 @@ import (
 
 func TestConsumerServer_StartHandler(t *testing.T) {
 	nc := NewConsumer(&ConsumerP{
-		topicName:    mock.TopicName,
-		channelName:  mock.ChannelName,
-		lookupdHosts: []string{mock.LookupdHost},
+		topicName:   mock.TopicName,
+		channelName: mock.ChannelName,
+		lookupHosts: []string{mock.LookupdHost},
+		concurrency: 10,
 	})
 
 	go func() {
 		time.Sleep(10 * time.Second)
-		nc.StopHandler()
+		nc.StopConsumer()
 	}()
 
-	nc.StartHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
+	nc.StartConcurrentHandlers(nsq.HandlerFunc(func(message *nsq.Message) error {
+		message.Finish()
+		//do something
 		log.Printf("Got a message: %v", string(message.Body))
 		return nil
 	}))

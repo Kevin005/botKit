@@ -10,15 +10,17 @@ import (
 )
 
 type ConsumerServer struct {
-	ci         consumer.ConsumerI
-	quitCh     chan string
-	lookupHost []string
+	ci          consumer.ConsumerI
+	quitCh      chan string
+	lookupHosts []string
+	concurrency int
 }
 
 type ConsumerP struct {
-	topicName    string
-	channelName  string
-	lookupdHosts []string
+	topicName   string
+	channelName string
+	lookupHosts []string
+	concurrency int
 }
 
 func NewConsumer(cp *ConsumerP) (ConsumerServerI) {
@@ -27,25 +29,27 @@ func NewConsumer(cp *ConsumerP) (ConsumerServerI) {
 		panic(fmt.Errorf("NewConsumer error, %v", err))
 	}
 	cs := &ConsumerServer{
-		ci:         cinew,
-		lookupHost: cp.lookupdHosts,
+		ci:          cinew,
+		lookupHosts: cp.lookupHosts,
+		concurrency: cp.concurrency,
 	}
 	return cs
 }
 
-func (cs *ConsumerServer) StartHandler(handler nsq.Handler) {
-	cs.ci.AddHandler(handler)
-	err := cs.ci.ConnectToNSQLookupd(cs.lookupHost)
+func (cs *ConsumerServer) StartConcurrentHandlers(handler nsq.Handler) {
+	cs.ci.AddConcurrentHandlers(handler, cs.concurrency)
+	err := cs.ci.ConnectToNSQLookupd(cs.lookupHosts)
 	fmt.Println("ch start")
 	if err != nil {
 		log.Fatal("connect to nsq lookup err ", err.Error())
 	}
 	cs.quitCh = make(chan string)
-	<-cs.quitCh
+	<-cs.quitCh //todo 退出机制
 }
 
-func (cs *ConsumerServer) StopHandler() {
+func (cs *ConsumerServer) StopConsumer() {
 	if cs.quitCh != nil {
+		cs.ci.Stop()
 		cs.quitCh <- "quit"
 	}
 }
